@@ -15,7 +15,8 @@ def resource_path(relative_path):
 
 class GameMain:
     def __init__(self):
-        pygame.init()   
+        pygame.init()
+        pygame.display.set_icon(pygame.image.load(resource_path("assets/icon.ico")))
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.sound_channel_1 = pygame.mixer.Channel(0)
