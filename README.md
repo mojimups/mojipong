@@ -1,2 +1,2 @@
 # mojipong
-A pong recreation with satisfying visual flares, and a tough but fair humanized AI opponent — built with Pygame back in 2023 as a college assignment.
+A fast-paced pong rendition featuring satisfying visual and auditory flares, a tough but fair and humanized AI opponent, and both solo and multiplayer modes — built with Pygame in 2023 as a college assignment.
