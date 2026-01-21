@@ -1,5 +1,5 @@
 # mojipong
-A fast-paced pong rendition featuring satisfying visual and auditory flares, a tough but fair and humanized AI opponent, and both solo and multiplayer modes — built with Pygame in 2023 as a college assignment.
+A fast-paced pong rendition featuring satisfying visual and auditory flares, a tough but beatable and humanized AI opponent, and both solo and multiplayer modes — built with Pygame in 2023 as a college assignment.
 
 ### Dependency installation
 1. Open cmd in this folder
@@ -11,15 +11,17 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
 ### Local run instructions
 1. Open cmd in this folder
 2. Type in:
-   - python src/main.py
+   - cd project
+   - python main.py
 
 ### Web run instructions
 1. Open cmd in this folder
 2. Type in: 
-   - pygbag src
+   - pygbag project
 
 ### Build instructions
 1. Open cmd in this folder
 2. Type in:
+   - cd project
    - pyinstaller --name "mojipong" --onefile --noconsole --icon=icon.ico --add-data "assets;assets" main.py
 3. The finished build will be in /dist
