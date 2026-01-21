@@ -16,5 +16,5 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
 ### Build instructions
 1. Open cmd in this folder
 2. Type in:
-   - pyinstaller --onefile --noconsole --icon=icon.ico --add-data "assets;assets" main.py
+   - pyinstaller --name "mojipong" --onefile --noconsole --icon=icon.ico --add-data "assets;assets" main.py
 3. The finished build will be in /dist
