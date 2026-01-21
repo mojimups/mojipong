@@ -1,5 +1,5 @@
 import pygame
-from constant import *
+from .constant import *
 
 class Paddle:
     def __init__(self, screen, x, y, width, height):

@@ -1,8 +1,8 @@
 import pygame, sys, random, time, numpy, os
-from constant import *
-from Ball import Ball
-from Paddle import Paddle
-from Particle import Particle
+from .constant import *
+from .Ball import Ball
+from .Paddle import Paddle
+from .Particle import Particle
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """

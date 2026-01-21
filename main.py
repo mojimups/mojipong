@@ -1,8 +1,8 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
-from constant import *
-from GameMain import GameMain
+from src.constant import *
+from src.GameMain import GameMain
 
 if __name__ == '__main__':
     main = GameMain()
