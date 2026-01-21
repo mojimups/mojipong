@@ -8,10 +8,15 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
    2. venv\Scripts\Activate
    3. pip install -r requirements.txt
 
-### Run instructions
+### Local run instructions
 1. Open cmd in this folder
 2. Type in:
-   - python main.py
+   - python src/main.py
+
+### Web run instructions
+1. Open cmd in this folder
+2. Type in: 
+   - pygbag src
 
 ### Build instructions
 1. Open cmd in this folder

@@ -1,21 +1,21 @@
 import pygame, sys, random, time, numpy, os
-from .constant import *
-from .Ball import Ball
-from .Paddle import Paddle
-from .Particle import Particle
+import pygame.sndarray
+from constant import *
+from Ball import Ball
+from Paddle import Paddle
+from Particle import Particle
 
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
 class GameMain:
     def __init__(self):
-        pygame.init()
+        pygame.init()   
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.sound_channel_1 = pygame.mixer.Channel(0)
@@ -63,10 +63,14 @@ class GameMain:
         self.ai_last_update_time = 0
         self.ai_target_y = None
         self.ai_prediction_error_factor = random.uniform(AI_PREDICTION_ERROR_MIN, AI_PREDICTION_ERROR_MAX)
-        self.ai_last_ball_y_direction = 0  # Track ball direction to detect reflections
-        self.ai_needs_recalculation = False  # Flag when ball reflects
+        self.ai_last_ball_y_direction = 0  
+        self.ai_needs_recalculation = False
 
         self.particles = []
+        
+        self.shake_offset_x = 0
+        self.shake_offset_y = 0
+        self.shake_time_remaining = 0
 
         self.sound_channel_3.play(self.sounds_list['intro'])
 
@@ -354,6 +358,16 @@ class GameMain:
         self.player1.update(dt)
         self.player2.update(dt)
         self.UpdateParticles(dt)
+        
+        # Update screen shake
+        if self.shake_time_remaining > 0:
+            self.shake_time_remaining -= dt
+            if self.shake_time_remaining <= 0:
+                self.shake_offset_x = 0
+                self.shake_offset_y = 0
+            else:
+                self.shake_offset_x = random.randint(-SCREEN_SHAKE_INTENSITY, SCREEN_SHAKE_INTENSITY)
+                self.shake_offset_y = random.randint(-SCREEN_SHAKE_INTENSITY, SCREEN_SHAKE_INTENSITY)
 
     def render(self):
         self.screen.fill((0, 0, 0))
@@ -426,6 +440,12 @@ class GameMain:
             self.ball.render()
             for particle in self.particles:
                 particle.render(self.screen)
+        
+        # Apply screen shake if active
+        if self.shake_time_remaining > 0:
+            temp_surface = self.screen.copy()
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(temp_surface, (self.shake_offset_x, self.shake_offset_y))
 
     def DisplayScore(self):
         self.t_p1_score = self.score_font.render(str(self.player1_score), False, (GRAY_OPACITY, GRAY_OPACITY, GRAY_OPACITY))
@@ -452,18 +472,9 @@ class GameMain:
         self.particles = active_particles
 
     def ScreenShake(self):
-        shake_end_time = pygame.time.get_ticks() + SCREEN_SHAKE_DURATION * 1000
-        while pygame.time.get_ticks() < shake_end_time:
-            current_frame = self.screen.copy()
-            offset_x = random.randint(-SCREEN_SHAKE_INTENSITY, SCREEN_SHAKE_INTENSITY)
-            offset_y = random.randint(-SCREEN_SHAKE_INTENSITY, SCREEN_SHAKE_INTENSITY)
-            self.screen.blit(current_frame, (offset_x, offset_y))
-            pygame.display.flip()
-        self.render()
-        pygame.display.flip()
+        self.shake_time_remaining = SCREEN_SHAKE_DURATION
 
     def PredictBallPosition(self, start_y, dy, time_to_reach):
-        """Predict ball's Y position accounting for wall reflections"""
         y = start_y
         velocity_y = dy
         distance_to_travel = abs(velocity_y * time_to_reach)
