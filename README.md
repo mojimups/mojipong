@@ -1,4 +1,4 @@
-# mojipong
+# MOJIPONG
 A fast-paced pong rendition featuring satisfying visual and auditory flares, a tough but beatable and humanized AI opponent, and both solo and multiplayer modes — built with Pygame in 2023 as a college assignment.
 
 ### Dependency installation
