@@ -348,11 +348,11 @@ class GameMain:
         self.screen.fill((0, 0, 0))
 
         if self.game_state == 'start':
-            t_welcome = self.title_font.render("MojiPong", False, (255, 255, 255))
-            text_rect = t_welcome.get_rect(center=(WIDTH / 2 + 10, HEIGHT / 2 - 40))
+            t_welcome = self.title_font.render("MOJIPONG", False, (255, 255, 255))
+            text_rect = t_welcome.get_rect(center=(WIDTH / 2 + 10, HEIGHT / 2 - 60))
             self.screen.blit(t_welcome, text_rect)
-            t_credit = self.small_font.render("by mojimups", False, (255, 255, 255))
-            text_rect = t_credit.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
+            t_credit = self.medium_font.render("by mojimups", False, (255, 255, 255))
+            text_rect = t_credit.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 30))
             self.screen.blit(t_credit, text_rect)
             t_press_enter_begin = self.medium_font.render('Press Spacebar to play solo!', False, (255, 255, 255))
             text_rect = t_press_enter_begin.get_rect(center=(WIDTH / 2, HEIGHT - 140))

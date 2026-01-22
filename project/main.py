@@ -16,7 +16,7 @@ async def main():
     
     while True:
         # pygame.display.set_caption("MojiPong ({:d} FPS)".format(int(clock.get_fps()))) 
-        pygame.display.set_caption("MojiPong")
+        pygame.display.set_caption("MOJIPONG")
 
         # elapsed time from the last call
         pygame.display.update()
