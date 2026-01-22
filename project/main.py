@@ -23,6 +23,10 @@ async def main():
         await asyncio.sleep(0)  # Yield control to browser
 
         dt = clock.tick(MAX_FRAME_RATE)/1000.0
+        
+        # Clamp dt for web browsers - when tab is inactive, dt can spike to several seconds
+        # causing paddles to fly offscreen (especially noticeable with bot paddle)
+        dt = min(dt, 0.1)
 
         events = pygame.event.get()
         game.update(dt, events)
