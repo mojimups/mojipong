@@ -166,7 +166,7 @@ class GameMain:
                     self.DrawParticles((self.ball.rect.x, self.ball.rect.y), 'normal', 'left', 8)
 
             # ball hit top wall
-            if self.ball.rect.y <= 0 and self.ball.dy < 0:
+            if self.ball.rect.y <= 0:
                 self.DrawParticles((self.ball.rect.x, self.ball.rect.y), 'normal', 'down', 12)
                 self.ball.rect.y = 1  # Push ball slightly away from wall to prevent sticking
                 self.ball.dy = abs(self.ball.dy)  # Ensure positive velocity (moving down)
