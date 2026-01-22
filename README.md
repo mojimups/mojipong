@@ -22,7 +22,7 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
    - pygbag project
 3. The finished "web folder" will be in /build
 4. (Optional) Replace these colors in index.html
-   - powderblue -> #323232
+   - powderblue -> #000000
    - #7f7f7f -> #000000
 
 ### Build instructions
