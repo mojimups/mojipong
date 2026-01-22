@@ -55,10 +55,7 @@ class GameMain:
         self.ball = Ball(self.screen, WIDTH/2 - 6, HEIGHT/2 - 6, 12, 12)
 
         self.game_state = 'start'
-        self.multiplayer_mode = DEBUG_MULTIPLAYER
-        self.ai_difficulty = 'weak'
-        if DEBUG_FORCE_STRONG_AI:
-            self.ai_difficulty = 'strong'
+        self.multiplayer_mode = False
 
         self.ai_update_delay = random.uniform(AI_UPDATE_DELAY_MIN, AI_UPDATE_DELAY_MAX) 
         self.ai_last_update_time = 0
@@ -204,8 +201,6 @@ class GameMain:
                     self.sound_channel_3.play(self.sounds_list['defeat'])
                     self.game_state = 'done'
                     self.winning_player = 2
-                    if not DEBUG_FORCE_STRONG_AI:
-                        self.ai_difficulty = 'weak'
                 else:
                     self.game_state = 'serve'
                     self.ball.Reset()
@@ -222,11 +217,6 @@ class GameMain:
                     self.sound_channel_3.play(self.sounds_list['victory'])
                     self.game_state = 'done'
                     self.winning_player = 1
-                    if self.ai_difficulty == 'weak':
-                        self.ai_difficulty = 'strong'
-                    elif self.ai_difficulty == 'strong':
-                        if not DEBUG_FORCE_STRONG_AI:
-                            self.ai_difficulty = 'weak'
                 else:
                     self.game_state = 'serve'
                     self.ball.Reset()
@@ -255,97 +245,81 @@ class GameMain:
 
         if not self.multiplayer_mode:
 
-            # Player 2 movement
+            # Player 2 movement (AI)
             if self.game_state == 'play':
-                # Weak AI movement
-                if self.ai_difficulty == 'weak':
-                    #Give AI direction if's not moving
-                    if self.player2.dy == 0:
-                        self.player2.dy = random.choice([PADDLE_SPEED, -PADDLE_SPEED])
+                current_time = time.time()
+                
+                # Force recalculation if ball reflected off wall
+                if self.ai_needs_recalculation:
+                    self.ai_needs_recalculation = False
+                    # Add reaction delay after reflection
+                    if not DEBUG_PERFECT_STRONG_AI:
+                        self.ai_update_delay = random.uniform(AI_REFLECTION_REACTION_DELAY_MIN, AI_REFLECTION_REACTION_DELAY_MAX)
+                    self.ai_last_update_time = current_time
+                
+                # Check if it's time to update bot's target
+                if current_time - self.ai_last_update_time > self.ai_update_delay:
+                    # Prepare next update loop
+                    self.ai_last_update_time = current_time
+                    if not DEBUG_PERFECT_STRONG_AI:
+                        self.ai_update_delay = random.uniform(AI_UPDATE_DELAY_MIN, AI_UPDATE_DELAY_MAX)
                     else:
-                        # Randomly switch direction
-                        switch_direction_chance = random.uniform(0, 1)
-                        if switch_direction_chance <= 0.05:
-                            self.player2.dy = -self.player2.dy
-                    # Switch direction if AI hit the top or bottom of the screen
-                    if (self.player2.rect.y + self.player2.rect.height >= HEIGHT and self.player2.dy > 0) or (self.player2.rect.y <= 0 and self.player2.dy < 0):
-                        self.player2.dy = -self.player2.dy
-
-                # Strong AI movement
-                elif self.ai_difficulty == 'strong':
-                    current_time = time.time()
-                    
-                    # Force recalculation if ball reflected off wall
-                    if self.ai_needs_recalculation:
-                        self.ai_needs_recalculation = False
-                        # Add reaction delay after reflection
-                        if not DEBUG_PERFECT_STRONG_AI:
-                            self.ai_update_delay = random.uniform(AI_REFLECTION_REACTION_DELAY_MIN, AI_REFLECTION_REACTION_DELAY_MAX)
-                        self.ai_last_update_time = current_time
-                    
-                    # Check if it's time to update bot's target
-                    if current_time - self.ai_last_update_time > self.ai_update_delay:
-                        # Prepare next update loop
-                        self.ai_last_update_time = current_time
-                        if not DEBUG_PERFECT_STRONG_AI:
-                            self.ai_update_delay = random.uniform(AI_UPDATE_DELAY_MIN, AI_UPDATE_DELAY_MAX)
+                        self.ai_update_delay = 0
+                    # Predict the ball's future y-position with wall reflections
+                    time_to_reach = (self.player2.rect.x - self.ball.rect.x) / abs(self.ball.dx)
+                    predicted_y, bounce_count = self.PredictBallPosition(self.ball.rect.y, self.ball.dy, time_to_reach)
+                    if not DEBUG_PERFECT_STRONG_AI:
+                        # Prepare undershoot/overshoot prediction error
+                        self.ai_prediction_error = random.uniform(AI_PREDICTION_ERROR_MIN, AI_PREDICTION_ERROR_MAX)
+                        # Prepare more prediction error the faster the ball is
+                        ball_speed = abs(self.ball.dx)
+                        speed_percentage = (ball_speed - SERVE_BALL_DX_MIN) / (BALL_TERMINAL_DX - SERVE_BALL_DX_MIN)
+                        if random.uniform(0, 1) < 0.5:
+                            speed_error_factor = 1 + (random.uniform(AI_SPEED_PREDICTION_ERROR_MAX/2, AI_SPEED_PREDICTION_ERROR_MAX) * speed_percentage)
                         else:
-                            self.ai_update_delay = 0
-                        # Predict the ball's future y-position with wall reflections
-                        time_to_reach = (self.player2.rect.x - self.ball.rect.x) / abs(self.ball.dx)
-                        predicted_y, bounce_count = self.PredictBallPosition(self.ball.rect.y, self.ball.dy, time_to_reach)
-                        if not DEBUG_PERFECT_STRONG_AI:
-                            # Prepare undershoot/overshoot prediction error
-                            self.ai_prediction_error = random.uniform(AI_PREDICTION_ERROR_MIN, AI_PREDICTION_ERROR_MAX)
-                            # Prepare more prediction error the faster the ball is
-                            ball_speed = abs(self.ball.dx)
-                            speed_percentage = (ball_speed - SERVE_BALL_DX_MIN) / (BALL_TERMINAL_DX - SERVE_BALL_DX_MIN)
-                            if random.uniform(0, 1) < 0.5:
-                                speed_error_factor = 1 + (random.uniform(AI_SPEED_PREDICTION_ERROR_MAX/2, AI_SPEED_PREDICTION_ERROR_MAX) * speed_percentage)
-                            else:
-                                speed_error_factor = 1 - (random.uniform(AI_SPEED_PREDICTION_ERROR_MAX/2, AI_SPEED_PREDICTION_ERROR_MAX) * speed_percentage)
-                            
-                            # Add prediction error based on ball angle (steeper angles = more error)
-                            angle_ratio = abs(self.ball.dy) / max(abs(self.ball.dx), 1)  # Vertical/horizontal ratio
-                            angle_percentage = min(angle_ratio / 1.5, 1.0)  # Normalize (0=flat, 1=steep)
-                            if random.uniform(0, 1) < 0.5:
-                                angle_error_factor = 1 + (random.uniform(AI_ANGLE_PREDICTION_ERROR_MAX/2, AI_ANGLE_PREDICTION_ERROR_MAX) * angle_percentage)
-                            else:
-                                angle_error_factor = 1 - (random.uniform(AI_ANGLE_PREDICTION_ERROR_MAX/2, AI_ANGLE_PREDICTION_ERROR_MAX) * angle_percentage)
-                            
-                            # Add extra prediction error if ball will bounce off walls
-                            reflection_error_factor = 1.0
-                            if bounce_count > 0:
-                                # More bounces = more error, compounding effect
-                                base_reflection_error = random.uniform(AI_REFLECTION_ERROR_MIN, AI_REFLECTION_ERROR_MAX)
-                                reflection_error_factor = 1 + (base_reflection_error * bounce_count)
-                            
-                            # Apply all error factors
-                            # Calculate error as offset from predicted position, not multiplier of absolute position
-                            total_error_factor = self.ai_prediction_error * speed_error_factor * angle_error_factor * reflection_error_factor
-                            # Convert to offset: deviation from perfect prediction
-                            error_offset = (predicted_y - HEIGHT/2) * (total_error_factor - 1.0)
-                            self.ai_target_y = predicted_y + error_offset
-                            
-                            # Occasionally try to hit ball at paddle edge for angle control (like human players)
-                            if random.uniform(0, 1) < AI_EDGE_POSITIONING_CHANCE:
-                                edge_offset = random.choice([PADDLE_HEIGHT * 0.3, -PADDLE_HEIGHT * 0.3])
-                                self.ai_target_y += edge_offset
+                            speed_error_factor = 1 - (random.uniform(AI_SPEED_PREDICTION_ERROR_MAX/2, AI_SPEED_PREDICTION_ERROR_MAX) * speed_percentage)
+                        
+                        # Add prediction error based on ball angle (steeper angles = more error)
+                        angle_ratio = abs(self.ball.dy) / max(abs(self.ball.dx), 1)  # Vertical/horizontal ratio
+                        angle_percentage = min(angle_ratio / 1.5, 1.0)  # Normalize (0=flat, 1=steep)
+                        if random.uniform(0, 1) < 0.5:
+                            angle_error_factor = 1 + (random.uniform(AI_ANGLE_PREDICTION_ERROR_MAX/2, AI_ANGLE_PREDICTION_ERROR_MAX) * angle_percentage)
                         else:
-                            self.ai_target_y = predicted_y
-                    # Bot moves towards the target
-                    if self.ai_target_y is not None:
-                        paddle_center = self.player2.rect.y + self.player2.rect.height / 2
-                        if not DEBUG_PERFECT_STRONG_AI:
-                            decisiveness = random.uniform(AI_DECISIVENESS_MIN, AI_DECISIVENESS_MAX)
-                        else:
-                            decisiveness = 1
-                        if self.ai_target_y < paddle_center - 8:
-                            self.player2.dy = -PADDLE_SPEED * decisiveness
-                        elif self.ai_target_y > paddle_center + 8:
-                            self.player2.dy = PADDLE_SPEED * decisiveness
-                        else:
-                            self.player2.dy = 0
+                            angle_error_factor = 1 - (random.uniform(AI_ANGLE_PREDICTION_ERROR_MAX/2, AI_ANGLE_PREDICTION_ERROR_MAX) * angle_percentage)
+                        
+                        # Add extra prediction error if ball will bounce off walls
+                        reflection_error_factor = 1.0
+                        if bounce_count > 0:
+                            # More bounces = more error, compounding effect
+                            base_reflection_error = random.uniform(AI_REFLECTION_ERROR_MIN, AI_REFLECTION_ERROR_MAX)
+                            reflection_error_factor = 1 + (base_reflection_error * bounce_count)
+                        
+                        # Apply all error factors
+                        # Calculate error as offset from predicted position, not multiplier of absolute position
+                        total_error_factor = self.ai_prediction_error * speed_error_factor * angle_error_factor * reflection_error_factor
+                        # Convert to offset: deviation from perfect prediction
+                        error_offset = (predicted_y - HEIGHT/2) * (total_error_factor - 1.0)
+                        self.ai_target_y = predicted_y + error_offset
+                        
+                        # Occasionally try to hit ball at paddle edge for angle control (like human players)
+                        if random.uniform(0, 1) < AI_EDGE_POSITIONING_CHANCE:
+                            edge_offset = random.choice([PADDLE_HEIGHT * 0.3, -PADDLE_HEIGHT * 0.3])
+                            self.ai_target_y += edge_offset
+                    else:
+                        self.ai_target_y = predicted_y
+                # Bot moves towards the target
+                if self.ai_target_y is not None:
+                    paddle_center = self.player2.rect.y + self.player2.rect.height / 2
+                    if not DEBUG_PERFECT_STRONG_AI:
+                        decisiveness = random.uniform(AI_DECISIVENESS_MIN, AI_DECISIVENESS_MAX)
+                    else:
+                        decisiveness = 1
+                    if self.ai_target_y < paddle_center - 8:
+                        self.player2.dy = -PADDLE_SPEED * decisiveness
+                    elif self.ai_target_y > paddle_center + 8:
+                        self.player2.dy = PADDLE_SPEED * decisiveness
+                    else:
+                        self.player2.dy = 0
 
         else:
             key = pygame.key.get_pressed()

@@ -11,17 +11,20 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
 ### Local run instructions
 1. Open cmd in this folder
 2. Type in:
+   - .\venv\Scripts\activate
    - cd project
    - python main.py
 
 ### Web run instructions
 1. Open cmd in this folder
-2. Type in: 
+2. Type in:
+   - .\venv\Scripts\activate
    - pygbag project
 
 ### Build instructions
 1. Open cmd in this folder
 2. Type in:
+   - .\venv\Scripts\activate
    - cd project
    - pyinstaller --name "mojipong" --onefile --noconsole --icon=icon.ico --add-data "assets;assets" main.py
 3. The finished build will be in /dist
