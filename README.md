@@ -22,8 +22,8 @@ A fast-paced pong rendition featuring satisfying visual and auditory flares, a t
    - pygbag project
 3. The finished "web folder" will be in /build
 4. (Optional) Replace these colors in index.html
-   - powderblue -> #000000
-   - #7f7f7f -> #000000
+   - powderblue -> black
+   - #7f7f7f -> black
 
 ### Build instructions
 1. Open cmd in this folder
