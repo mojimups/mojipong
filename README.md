@@ -1,5 +1,5 @@
 # MOJIPONG
-A fast-paced pong rendition featuring satisfying visual and auditory flares, a tough but beatable and humanized AI opponent, and both solo and multiplayer modes — built with Pygame in 2023 as a college assignment.
+MOJIPONG is my fast-paced rendition of Pong, featuring satisfying visual and auditory flares, a humanized AI opponent that is tough but beatable, and both solo and multiplayer modes. This game was built with Pygame in 2023 as a college assignment.
 
 ### Dependency installation
 1. Open cmd in this folder
